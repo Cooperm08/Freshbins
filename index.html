@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fresh Bins">
+<meta name="theme-color" content="#2d7a3a">
+<title>Fresh Bins Co.</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g1:#2d7a3a; --g2:#4aad5b; --g3:#6dc77d; --gbg:#f4faf5; --gbd:#e2f2e4;
+  --ybg:#fff8e1; --ybd:#f5c842;
+  --red:#c0392b; --redbg:#fff0f0;
+  --t1:#222; --t2:#555; --t3:#999; --bdr:#e8e8e8; --bg:#f5f7f2;
+  --r:16px; --rs:12px; --rx:10px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;min-height:100dvh;overflow-x:hidden;padding-bottom:calc(72px + var(--safe-b))}
+button,input,select,textarea{font-family:inherit;font-size:inherit}
+input,select,textarea{color:var(--t1)}
+
+/* ═══ HEADER ═══ */
+.hdr{background:linear-gradient(135deg,var(--g1),var(--g2));padding:calc(env(safe-area-inset-top,12px) + 8px) 20px 14px;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(45,122,58,.25)}
+.hdr-in{display:flex;align-items:center;justify-content:space-between;max-width:900px;margin:0 auto}
+.hdr h1{font-family:'Fredoka',sans-serif;font-size:22px;font-weight:700;color:#fff}
+.hdr-sub{font-size:10px;color:rgba(255,255,255,.7);font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
+.save-dot{width:8px;height:8px;border-radius:50%;background:#6dc77d;opacity:0;transition:opacity .3s}
+.save-dot.on{opacity:1}
+
+/* ═══ BOTTOM NAV ═══ */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;border-top:1px solid var(--bdr);z-index:100;padding-bottom:var(--safe-b);box-shadow:0 -2px 12px rgba(0,0,0,.06)}
+.bnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px 6px;border:none;background:none;cursor:pointer;color:var(--t3);font-size:10px;font-weight:600;transition:color .2s}
+.bnav button.on{color:var(--g1)}
+.bnav button .ico{font-size:22px;line-height:1}
+
+/* ═══ VIEWS ═══ */
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+.vw{display:none}.vw.on{display:block}
+
+/* ═══ CARDS ═══ */
+.card{background:#fff;border-radius:var(--r);padding:16px;border:1.5px solid var(--bdr);box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:12px}
+.card.edit{border-color:var(--g1)}
+
+/* ═══ STATS ═══ */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.sc{background:var(--gbg);border-radius:var(--r);padding:14px;text-align:center;border:1.5px solid var(--gbd)}
+.sc .v{font-family:'Fredoka',sans-serif;font-size:22px;font-weight:700}
+.sc .l{font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.sc .i{font-size:20px;margin-bottom:2px}
+
+/* ═══ SECTION TITLE ═══ */
+.st{font-family:'Fredoka',sans-serif;font-size:17px;font-weight:600;color:var(--g1);margin:0 0 12px}
+.st2{font-size:14px;color:var(--t3);margin:-8px 0 14px}
+
+/* ═══ EMPTY ═══ */
+.empty{text-align:center;padding:36px 20px;background:#fafafa;border-radius:var(--r)}
+.empty .i{font-size:36px}.empty p{color:var(--t3);margin-top:6px;font-size:13px}
+
+/* ═══ FORM ═══ */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fl{display:flex;flex-direction:column;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;gap:3px}
+.fi{padding:9px 12px;border-radius:var(--rx);border:1.5px solid #e0e0e0;font-size:14px;outline:none;width:100%;transition:border-color .2s}
+.fi:focus{border-color:var(--g2)}
+.fl.full{grid-column:1/-1}
+
+/* ═══ BUTTONS ═══ */
+.bp{background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;border:none;border-radius:var(--rs);padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer}
+.bp:active{transform:scale(.97)}.bp.w{width:100%;margin-top:14px}
+.bs{background:#f5f5f5;color:#777;border:1.5px solid #e0e0e0;border-radius:var(--rs);padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer}
+.bd{background:var(--redbg);color:var(--red);border:1.5px solid #f5c6cb;border-radius:var(--rs);padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-left:auto}
+.br{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+/* ═══ BADGES ═══ */
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+.badge:active{transform:scale(.95)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.rbadge{font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px}
+.ebtn{background:none;border:1.5px solid #ddd;border-radius:var(--rx);padding:4px 12px;font-size:11px;font-weight:600;color:#888;cursor:pointer}
+
+/* ═══ SEARCH / FILTERS ═══ */
+.sbar{margin-bottom:14px}
+.sinp{width:100%;padding:10px 14px;border-radius:var(--rs);border:1.5px solid #e0e0e0;font-size:14px;outline:none;margin-bottom:8px}
+.sinp:focus{border-color:var(--g2)}
+.pills{display:flex;gap:5px;flex-wrap:wrap}
+.pill{padding:4px 12px;border-radius:20px;border:1.5px solid #e0e0e0;background:#fff;font-size:11px;font-weight:600;cursor:pointer;color:#888}
+.pill.on{background:var(--g1);color:#fff;border-color:var(--g1)}
+
+/* ═══ CALENDAR ═══ */
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-hdr h3{font-family:'Fredoka',sans-serif;font-size:16px;color:var(--g1)}
+.cal-nav{display:flex;gap:6px}
+.cal-nav button{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--bdr);background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;margin-bottom:16px}
+.cal-grid .dh{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:6px 0}
+.cal-grid .dy{font-size:13px;padding:8px 2px;border-radius:10px;cursor:pointer;position:relative;font-weight:500;min-height:38px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.cal-grid .dy:hover{background:var(--gbg)}
+.cal-grid .dy.today{background:var(--g1);color:#fff;font-weight:700;border-radius:10px}
+.cal-grid .dy.has-booking::after{content:'';width:5px;height:5px;border-radius:50%;background:var(--g2);position:absolute;bottom:3px}
+.cal-grid .dy.today.has-booking::after{background:#fff}
+.cal-grid .dy.other{color:#ccc}
+.cal-day-list h4{font-family:'Fredoka',sans-serif;font-size:14px;color:var(--t2);margin-bottom:8px}
+
+/* ═══ INVOICE ═══ */
+.inv-preview{background:#fff;border:2px solid var(--bdr);border-radius:var(--r);padding:24px;margin-bottom:16px}
+.inv-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--g1)}
+.inv-hdr h2{font-family:'Fredoka',sans-serif;font-size:22px;color:var(--g1)}
+.inv-hdr .num{font-size:12px;color:var(--t3);font-weight:600}
+.inv-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.inv-row.total{border-top:2px solid var(--g1);border-bottom:none;font-weight:700;font-size:16px;color:var(--g1);padding-top:12px;margin-top:4px}
+.inv-info{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px}
+.inv-info .label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+
+/* ═══ CUSTOMER CARD ═══ */
+.cust-stats{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap}
+.cust-stat{font-size:11px;color:var(--t3);font-weight:600}
+.cust-stat span{color:var(--g1);font-weight:700}
+
+/* ═══ LIST ═══ */
+.list{display:flex;flex-direction:column;gap:10px}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;bottom:calc(80px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(60px);background:var(--g1);color:#fff;padding:10px 24px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:200;opacity:0;transition:all .35s cubic-bezier(.175,.885,.32,1.275);pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ═══ MODAL ═══ */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:150;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.on{display:flex}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:24px 20px calc(20px + var(--safe-b));width:100%;max-width:600px;max-height:85vh;overflow-y:auto}
+.modal h3{font-family:'Fredoka',sans-serif;font-size:18px;color:var(--g1);margin-bottom:14px}
+
+@media(min-width:768px){
+  .fg{grid-template-columns:1fr 1fr 1fr}
+  .sg{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:374px){
+  .fg{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-in">
+    <div><h1>🗑️ Fresh Bins Co.</h1><div class="hdr-sub">Business Manager</div></div>
+    <div class="save-dot" id="saveDot"></div>
+  </div>
+</div>
+
+<!-- VIEWS -->
+<div class="wrap">
+  <div class="vw on" id="v-dash"></div>
+  <div class="vw" id="v-book"></div>
+  <div class="vw" id="v-cust"></div>
+  <div class="vw" id="v-cal"></div>
+  <div class="vw" id="v-inv"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <button class="on" data-v="dash" onclick="nav('dash')"><span class="ico">📊</span>Dashboard</button>
+  <button data-v="book" onclick="nav('book')"><span class="ico">📋</span>Bookings</button>
+  <button data-v="cust" onclick="nav('cust')"><span class="ico">👥</span>Customers</button>
+  <button data-v="cal" onclick="nav('cal')"><span class="ico">📅</span>Calendar</button>
+  <button data-v="inv" onclick="nav('inv')"><span class="ico">🧾</span>Invoices</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATA LAYER
+// ═══════════════════════════════════════════
+const K = { b: "fb_bookings", c: "fb_customers", i: "fb_invoices" };
+let D = {
+  bookings: JSON.parse(localStorage.getItem(K.b) || "[]"),
+  customers: JSON.parse(localStorage.getItem(K.c) || "[]"),
+  invoices: JSON.parse(localStorage.getItem(K.i) || "[]"),
+};
+let calMonth = new Date().getMonth(), calYear = new Date().getFullYear(), calSelected = null;
+let editId = null, activeFilter = "All";
+
+function save() {
+  localStorage.setItem(K.b, JSON.stringify(D.bookings));
+  localStorage.setItem(K.c, JSON.stringify(D.customers));
+  localStorage.setItem(K.i, JSON.stringify(D.invoices));
+  const d = document.getElementById("saveDot"); d.classList.add("on"); setTimeout(() => d.classList.remove("on"), 1000);
+}
+function toast(m) { const t = document.getElementById("toast"); t.textContent = m; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2000); }
+function esc(s) { const d = document.createElement("div"); d.textContent = s || ""; return d.innerHTML; }
+const fmt$ = n => `$${Number(n || 0).toFixed(2)}`;
+const fmtD = d => { try { return new Date(d + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }); } catch { return d; } };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function nav(v) {
+  document.querySelectorAll(".vw").forEach(e => e.classList.toggle("on", e.id === `v-${v}`));
+  document.querySelectorAll(".bnav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  editId = null;
+  const fn = { dash: renderDash, book: renderBook, cust: renderCust, cal: renderCal, inv: renderInv };
+  fn[v]?.();
+}
+
+// ═══════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════
+function openModal(html) { document.getElementById("modalContent").innerHTML = html; document.getElementById("modalBg").classList.add("on"); }
+function closeModal() { document.getElementById("modalBg").classList.remove("on"); }
+
+// ═══════════════════════════════════════════
+// STATUS HELPERS
+// ═══════════════════════════════════════════
+const SS = { Unpaid:{bg:"#fff0f0",t:"#c0392b",d:"#e74c3c"}, Paid:{bg:"#eafaf1",t:"#1e8449",d:"#27ae60"}, Partial:{bg:"#fef9e7",t:"#b7950b",d:"#f1c40f"} };
+const RC = { "One-time":"#95a5a6", Weekly:"#3498db", "Bi-weekly":"#9b59b6", Monthly:"#e67e22" };
+
+function statusBadge(b) {
+  const s = SS[b.paymentStatus] || SS.Unpaid;
+  return `<button class="badge" style="background:${s.bg};color:${s.t}" onclick="togglePay('${b.id}')"><span class="dot" style="background:${s.d}"></span>${b.paymentStatus}</button>`;
+}
+function recBadge(b) {
+  const c = RC[b.recurrence] || "#95a5a6";
+  return `<span class="rbadge" style="background:${c}20;color:${c}">${b.recurrence}</span>`;
+}
+
+function togglePay(id) {
+  const b = D.bookings.find(x => x.id === id);
+  if (!b) return;
+  const cy = ["Unpaid","Paid","Partial"];
+  b.paymentStatus = cy[(cy.indexOf(b.paymentStatus)+1)%3];
+  save(); renderDash(); renderBook(); renderCal();
+}
+
+// ═══════════════════════════════════════════
+// BOOKING CARD
+// ═══════════════════════════════════════════
+function bCard(b) {
+  return `<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+      <div><div style="font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600">${esc(b.customerName)}</div>
+      <div style="font-size:12px;color:#888;margin-top:1px">${esc(b.address)}</div></div>
+      <div style="font-family:'Fredoka',sans-serif;font-size:18px;font-weight:700;color:var(--g1)">${fmt$(b.price)}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+      <span style="font-size:11px;color:#777">📅 ${fmtD(b.serviceDate)}${b.serviceTime ? ' at '+b.serviceTime : ''}</span>
+      ${recBadge(b)}
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      ${statusBadge(b)}
+      <div style="display:flex;gap:6px">
+        <button class="ebtn" onclick="editBooking('${b.id}')">Edit</button>
+        <button class="ebtn" onclick="createInvFrom('${b.id}')">Invoice</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// 1. DASHBOARD
+// ═══════════════════════════════════════════
+function renderDash() {
+  const paid = D.bookings.filter(b=>b.paymentStatus==="Paid");
+  const rev = paid.reduce((s,b)=>s+Number(b.price||0),0);
+  const pend = D.bookings.filter(b=>b.paymentStatus!=="Paid").reduce((s,b)=>s+Number(b.price||0),0);
+  const rec = D.bookings.filter(b=>b.recurrence!=="One-time").length;
+
+  // This month revenue
+  const now = new Date();
+  const moRev = paid.filter(b => { const d = new Date(b.serviceDate+"T12:00:00"); return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear(); }).reduce((s,b)=>s+Number(b.price||0),0);
+
+  const today = new Date(now.toDateString());
+  const upcoming = D.bookings.filter(b=>new Date(b.serviceDate+"T12:00:00")>=today).sort((a,b)=>new Date(a.serviceDate)-new Date(b.serviceDate)).slice(0,5);
+
+  document.getElementById("v-dash").innerHTML = `
+    <div class="sg">
+      <div class="sc"><div class="i">💰</div><div class="v" style="color:#27ae60">${fmt$(rev)}</div><div class="l">Total Revenue</div></div>
+      <div class="sc"><div class="i">📆</div><div class="v" style="color:#2980b9">${fmt$(moRev)}</div><div class="l">This Month</div></div>
+      <div class="sc"><div class="i">⏳</div><div class="v" style="color:#e74c3c">${fmt$(pend)}</div><div class="l">Pending</div></div>
+      <div class="sc"><div class="i">👥</div><div class="v" style="color:#8e44ad">${D.customers.length}</div><div class="l">Customers</div></div>
+      <div class="sc"><div class="i">📋</div><div class="v" style="color:var(--g1)">${D.bookings.length}</div><div class="l">Bookings</div></div>
+      <div class="sc"><div class="i">🔁</div><div class="v" style="color:#e67e22">${rec}</div><div class="l">Recurring</div></div>
+    </div>
+    <h2 class="st">Upcoming</h2>
+    ${upcoming.length===0?'<div class="empty"><div class="i">📭</div><p>No upcoming bookings</p></div>':'<div class="list">'+upcoming.map(bCard).join('')+'</div>'}
+  `;
+}
+
+// ═══════════════════════════════════════════
+// 2. BOOKINGS
+// ═══════════════════════════════════════════
+function renderBook() {
+  const q = document.querySelector("#v-book .sinp")?.value?.toLowerCase() || "";
+  const filtered = D.bookings.filter(b => {
+    const mq = b.customerName.toLowerCase().includes(q) || b.address.toLowerCase().includes(q);
+    const mp = activeFilter==="All" || b.paymentStatus===activeFilter;
+    return mq && mp;
+  }).sort((a,b)=>new Date(b.serviceDate)-new Date(a.serviceDate));
+
+  document.getElementById("v-book").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h2 class="st" style="margin:0">Bookings</h2>
+      <button class="bp" onclick="openAddBooking()" style="font-size:13px;padding:8px 16px">+ New</button>
+    </div>
+    <div class="sbar">
+      <input class="sinp" placeholder="Search name or address..." value="${esc(q)}" oninput="renderBook()">
+      <div class="pills">${["All","Unpaid","Paid","Partial"].map(s=>`<button class="pill ${activeFilter===s?'on':''}" onclick="activeFilter='${s}';renderBook()">${s}</button>`).join('')}</div>
+    </div>
+    ${filtered.length===0?'<div class="empty"><div class="i">🔍</div><p>No bookings found</p></div>':'<div class="list">'+filtered.map(bCard).join('')+'</div>'}
+  `;
+}
+
+function openAddBooking(defaults) {
+  const d = defaults || {};
+  openModal(`
+    <h3>${d.id ? 'Edit' : 'New'} Booking</h3>
+    <div class="fg">
+      <label class="fl">Customer Name *<input class="fi" id="m-name" value="${esc(d.customerName)}" placeholder="John Smith"></label>
+      <label class="fl">Address *<input class="fi" id="m-addr" value="${esc(d.address)}" placeholder="123 Main St"></label>
+      <label class="fl">Phone<input class="fi" id="m-phone" value="${esc(d.phone)}" placeholder="(336) 555-1234"></label>
+      <label class="fl">Service Date *<input class="fi" id="m-date" type="date" value="${d.serviceDate||''}"></label>
+      <label class="fl">Time<input class="fi" id="m-time" type="time" value="${d.serviceTime||''}"></label>
+      <label class="fl">Price ($)<input class="fi" id="m-price" type="number" value="${d.price||''}" placeholder="35"></label>
+      <label class="fl">Payment<select class="fi" id="m-pay">${["Unpaid","Paid","Partial"].map(s=>`<option ${d.paymentStatus===s?'selected':''}>${s}</option>`).join('')}</select></label>
+      <label class="fl">Recurrence<select class="fi" id="m-rec">${["One-time","Weekly","Bi-weekly","Monthly"].map(s=>`<option ${d.recurrence===s?'selected':''}>${s}</option>`).join('')}</select></label>
+    </div>
+    <div class="br">
+      <button class="bp" onclick="saveBooking('${d.id||''}')">${d.id?'Save Changes':'Add Booking'}</button>
+      ${d.id?`<button class="bd" onclick="delBooking('${d.id}')">Delete</button>`:''}
+      <button class="bs" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+
+function saveBooking(existingId) {
+  const name = document.getElementById("m-name").value.trim();
+  const addr = document.getElementById("m-addr").value.trim();
+  const date = document.getElementById("m-date").value;
+  if (!name||!addr||!date) { toast("⚠️ Fill in name, address & date"); return; }
+  const phone = document.getElementById("m-phone").value.trim();
+  const obj = {
+    customerName:name, address:addr, phone:phone,
+    serviceDate:date, serviceTime:document.getElementById("m-time").value,
+    price:document.getElementById("m-price").value||"0",
+    paymentStatus:document.getElementById("m-pay").value,
+    recurrence:document.getElementById("m-rec").value,
+  };
+
+  if (existingId) {
+    const b = D.bookings.find(x=>x.id===existingId);
+    Object.assign(b, obj);
+    toast("✅ Booking updated");
+  } else {
+    obj.id = uid();
+    obj.createdAt = new Date().toISOString();
+    D.bookings.push(obj);
+    // Auto-add customer if new
+    if (!D.customers.find(c=>c.name.toLowerCase()===name.toLowerCase())) {
+      D.customers.push({ id:uid(), name, address:addr, phone, createdAt:new Date().toISOString() });
+    }
+    toast("✅ Booking added");
+  }
+  save(); closeModal(); renderBook(); renderDash(); renderCal();
+}
+
+function editBooking(id) { openAddBooking(D.bookings.find(x=>x.id===id)); }
+function delBooking(id) { if(!confirm("Delete this booking?"))return; D.bookings=D.bookings.filter(x=>x.id!==id); save(); closeModal(); toast("🗑️ Deleted"); renderBook(); renderDash(); }
+
+// ═══════════════════════════════════════════
+// 3. CUSTOMERS
+// ═══════════════════════════════════════════
+function renderCust() {
+  const q = document.querySelector("#v-cust .sinp")?.value?.toLowerCase() || "";
+  const filtered = D.customers.filter(c => c.name.toLowerCase().includes(q) || (c.address||"").toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+
+  document.getElementById("v-cust").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h2 class="st" style="margin:0">Customers</h2>
+      <button class="bp" onclick="openAddCust()" style="font-size:13px;padding:8px 16px">+ New</button>
+    </div>
+    <input class="sinp" placeholder="Search customers..." value="${esc(q)}" oninput="renderCust()">
+    ${filtered.length===0?'<div class="empty"><div class="i">👥</div><p>No customers yet</p></div>':'<div class="list">'+filtered.map(custCard).join('')+'</div>'}
+  `;
+}
+
+function custCard(c) {
+  const bks = D.bookings.filter(b=>b.customerName.toLowerCase()===c.name.toLowerCase());
+  const total = bks.reduce((s,b)=>s+Number(b.price||0),0);
+  const paidTotal = bks.filter(b=>b.paymentStatus==="Paid").reduce((s,b)=>s+Number(b.price||0),0);
+  return `<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div style="font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600">${esc(c.name)}</div>
+        <div style="font-size:12px;color:#888;margin-top:1px">${esc(c.address||'No address')}</div>
+        ${c.phone?`<div style="font-size:12px;color:#888">📞 ${esc(c.phone)}</div>`:''}
+      </div>
+      <button class="ebtn" onclick="editCust('${c.id}')">Edit</button>
+    </div>
+    <div class="cust-stats">
+      <span class="cust-stat"><span>${bks.length}</span> bookings</span>
+      <span class="cust-stat"><span>${fmt$(paidTotal)}</span> paid</span>
+      <span class="cust-stat"><span>${fmt$(total-paidTotal)}</span> pending</span>
+    </div>
+  </div>`;
+}
+
+function openAddCust(d) {
+  d = d || {};
+  openModal(`
+    <h3>${d.id?'Edit':'New'} Customer</h3>
+    <div class="fg">
+      <label class="fl">Name *<input class="fi" id="mc-name" value="${esc(d.name)}" placeholder="John Smith"></label>
+      <label class="fl">Address<input class="fi" id="mc-addr" value="${esc(d.address)}" placeholder="123 Main St"></label>
+      <label class="fl">Phone<input class="fi" id="mc-phone" value="${esc(d.phone)}" placeholder="(336) 555-1234"></label>
+      <label class="fl full">Notes<textarea class="fi" id="mc-notes" rows="2" placeholder="Any notes...">${esc(d.notes)}</textarea></label>
+    </div>
+    <div class="br">
+      <button class="bp" onclick="saveCust('${d.id||''}')">${d.id?'Save':'Add Customer'}</button>
+      ${d.id?`<button class="bd" onclick="delCust('${d.id}')">Delete</button>`:''}
+      <button class="bs" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+
+function saveCust(existingId) {
+  const name = document.getElementById("mc-name").value.trim();
+  if (!name) { toast("⚠️ Name is required"); return; }
+  const obj = { name, address:document.getElementById("mc-addr").value.trim(), phone:document.getElementById("mc-phone").value.trim(), notes:document.getElementById("mc-notes").value.trim() };
+  if (existingId) { Object.assign(D.customers.find(x=>x.id===existingId), obj); toast("✅ Updated"); }
+  else { obj.id=uid(); obj.createdAt=new Date().toISOString(); D.customers.push(obj); toast("✅ Customer added"); }
+  save(); closeModal(); renderCust();
+}
+function editCust(id) { openAddCust(D.customers.find(x=>x.id===id)); }
+function delCust(id) { if(!confirm("Delete customer?"))return; D.customers=D.customers.filter(x=>x.id!==id); save(); closeModal(); toast("🗑️ Deleted"); renderCust(); }
+
+// ═══════════════════════════════════════════
+// 4. CALENDAR
+// ═══════════════════════════════════════════
+function renderCal() {
+  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const first = new Date(calYear, calMonth, 1);
+  const last = new Date(calYear, calMonth+1, 0);
+  const startDay = first.getDay();
+  const totalDays = last.getDate();
+  const today = new Date(); const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const monthName = first.toLocaleDateString("en-US",{month:"long",year:"numeric"});
+
+  // Build date strings for bookings lookup
+  const bookingDates = new Set(D.bookings.map(b=>b.serviceDate));
+
+  let cells = days.map(d=>`<div class="dh">${d}</div>`).join('');
+  // Prev month padding
+  const prevLast = new Date(calYear, calMonth, 0).getDate();
+  for (let i=startDay-1;i>=0;i--) cells += `<div class="dy other">${prevLast-i}</div>`;
+  // Days
+  for (let d=1;d<=totalDays;d++) {
+    const ds = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = ds===todayStr;
+    const hasB = bookingDates.has(ds);
+    const sel = calSelected===ds;
+    cells += `<div class="dy${isToday?' today':''}${hasB?' has-booking':''}" onclick="selectDay('${ds}')">${d}</div>`;
+  }
+  // Next month padding
+  const remaining = 7-((startDay+totalDays)%7); if(remaining<7) for(let i=1;i<=remaining;i++) cells+=`<div class="dy other">${i}</div>`;
+
+  // Day bookings
+  const dayBks = calSelected ? D.bookings.filter(b=>b.serviceDate===calSelected).sort((a,b)=>(a.serviceTime||"").localeCompare(b.serviceTime||"")) : [];
+
+  document.getElementById("v-cal").innerHTML = `
+    <div class="cal-hdr">
+      <h3>${monthName}</h3>
+      <div class="cal-nav">
+        <button onclick="calMonth--;if(calMonth<0){calMonth=11;calYear--}renderCal()">◀</button>
+        <button onclick="calMonth=new Date().getMonth();calYear=new Date().getFullYear();calSelected=null;renderCal()">●</button>
+        <button onclick="calMonth++;if(calMonth>11){calMonth=0;calYear++}renderCal()">▶</button>
+      </div>
+    </div>
+    <div class="cal-grid">${cells}</div>
+    ${calSelected ? `
+      <div class="cal-day-list">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <h4>${fmtD(calSelected)}</h4>
+          <button class="bp" style="font-size:12px;padding:6px 14px" onclick="openAddBooking({serviceDate:'${calSelected}'})">+ Book</button>
+        </div>
+        ${dayBks.length===0?'<div class="empty"><div class="i">📭</div><p>No bookings this day</p></div>':'<div class="list">'+dayBks.map(bCard).join('')+'</div>'}
+      </div>
+    ` : '<p style="text-align:center;color:var(--t3);font-size:13px">Tap a day to see bookings</p>'}
+  `;
+}
+function selectDay(ds) { calSelected = calSelected===ds ? null : ds; renderCal(); }
+
+// ═══════════════════════════════════════════
+// 5. INVOICES
+// ═══════════════════════════════════════════
+function renderInv() {
+  document.getElementById("v-inv").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h2 class="st" style="margin:0">Invoices</h2>
+      <button class="bp" onclick="openNewInv()" style="font-size:13px;padding:8px 16px">+ Create</button>
+    </div>
+    ${D.invoices.length===0?'<div class="empty"><div class="i">🧾</div><p>No invoices yet</p></div>':'<div class="list">'+D.invoices.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).map(invCard).join('')+'</div>'}
+  `;
+}
+
+function invCard(inv) {
+  const total = inv.items.reduce((s,i)=>s+Number(i.amount||0),0);
+  const sc = SS[inv.status]||SS.Unpaid;
+  return `<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+      <div>
+        <div style="font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600">${esc(inv.customerName)}</div>
+        <div style="font-size:11px;color:var(--t3)">INV-${inv.number} • ${fmtD(inv.date)}</div>
+      </div>
+      <div style="font-family:'Fredoka',sans-serif;font-size:18px;font-weight:700;color:var(--g1)">${fmt$(total)}</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <button class="badge" style="background:${sc.bg};color:${sc.t}" onclick="toggleInvStatus('${inv.id}')"><span class="dot" style="background:${sc.d}"></span>${inv.status}</button>
+      <div style="display:flex;gap:6px">
+        <button class="ebtn" onclick="viewInv('${inv.id}')">View</button>
+        <button class="ebtn" onclick="delInv('${inv.id}')">Delete</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleInvStatus(id) {
+  const inv = D.invoices.find(x=>x.id===id);
+  const cy=["Unpaid","Paid","Partial"];
+  inv.status=cy[(cy.indexOf(inv.status)+1)%3];
+  save(); renderInv();
+}
+
+function createInvFrom(bookingId) {
+  const b = D.bookings.find(x=>x.id===bookingId);
+  if(!b) return;
+  openNewInv({ customerName:b.customerName, address:b.address, items:[{desc:"Trash can cleaning service",amount:b.price||"0"}] });
+}
+
+function openNewInv(defaults) {
+  const d = defaults||{};
+  const items = d.items || [{desc:"",amount:""}];
+  openModal(`
+    <h3>Create Invoice</h3>
+    <div class="fg">
+      <label class="fl">Customer Name *<input class="fi" id="mi-name" value="${esc(d.customerName)}" placeholder="John Smith"></label>
+      <label class="fl">Address<input class="fi" id="mi-addr" value="${esc(d.address)}" placeholder="123 Main St"></label>
+      <label class="fl">Invoice Date<input class="fi" id="mi-date" type="date" value="${d.date||new Date().toISOString().split('T')[0]}"></label>
+      <label class="fl">Due Date<input class="fi" id="mi-due" type="date"></label>
+    </div>
+    <h4 style="font-family:'Fredoka',sans-serif;font-size:14px;color:var(--g1);margin:14px 0 8px">Line Items</h4>
+    <div id="invItems">${items.map((it,i)=>`<div class="fg" style="margin-bottom:8px"><label class="fl" style="flex:2">Description<input class="fi inv-desc" value="${esc(it.desc)}"></label><label class="fl">Amount ($)<input class="fi inv-amt" type="number" value="${it.amount||''}"></label></div>`).join('')}</div>
+    <button class="bs" onclick="addInvItem()" style="font-size:12px;padding:6px 14px;margin-bottom:12px">+ Add Line</button>
+    <div class="br">
+      <button class="bp" onclick="saveInv()">Create Invoice</button>
+      <button class="bs" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+
+function addInvItem() {
+  const c = document.getElementById("invItems");
+  c.insertAdjacentHTML("beforeend", `<div class="fg" style="margin-bottom:8px"><label class="fl" style="flex:2">Description<input class="fi inv-desc" value=""></label><label class="fl">Amount ($)<input class="fi inv-amt" type="number" value=""></label></div>`);
+}
+
+function saveInv() {
+  const name = document.getElementById("mi-name").value.trim();
+  if(!name){toast("⚠️ Customer name required");return;}
+  const descs = document.querySelectorAll(".inv-desc");
+  const amts = document.querySelectorAll(".inv-amt");
+  const items = [];
+  descs.forEach((d,i)=>{ if(d.value.trim()) items.push({desc:d.value.trim(),amount:amts[i]?.value||"0"}); });
+  if(items.length===0){toast("⚠️ Add at least one item");return;}
+
+  D.invoices.push({
+    id:uid(), number:String(D.invoices.length+1001),
+    customerName:name, address:document.getElementById("mi-addr").value.trim(),
+    date:document.getElementById("mi-date").value, dueDate:document.getElementById("mi-due").value,
+    items, status:"Unpaid", createdAt:new Date().toISOString()
+  });
+  save(); closeModal(); toast("✅ Invoice created"); renderInv();
+}
+
+function viewInv(id) {
+  const inv = D.invoices.find(x=>x.id===id);
+  if(!inv)return;
+  const total = inv.items.reduce((s,i)=>s+Number(i.amount||0),0);
+  openModal(`
+    <div class="inv-preview">
+      <div class="inv-hdr">
+        <div><h2>Fresh Bins Co.</h2><div style="font-size:12px;color:var(--t3);margin-top:2px">Trash Can Cleaning Service<br>(336) 209-3974</div></div>
+        <div style="text-align:right"><div class="num">INVOICE</div><div style="font-size:13px;font-weight:700;color:var(--g1)">INV-${inv.number}</div></div>
+      </div>
+      <div class="inv-info">
+        <div><div class="label">Bill To</div>${esc(inv.customerName)}<br>${esc(inv.address||'')}</div>
+        <div style="text-align:right"><div class="label">Date</div>${fmtD(inv.date)}${inv.dueDate?'<br><span class="label" style="display:inline">Due</span> '+fmtD(inv.dueDate):''}</div>
+      </div>
+      <div style="margin-bottom:4px">
+        <div class="inv-row" style="font-weight:700;color:var(--t3);font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #eee"><span>Description</span><span>Amount</span></div>
+        ${inv.items.map(i=>`<div class="inv-row"><span>${esc(i.desc)}</span><span>${fmt$(i.amount)}</span></div>`).join('')}
+        <div class="inv-row total"><span>Total</span><span>${fmt$(total)}</span></div>
+      </div>
+    </div>
+    <div class="br">
+      <button class="bp" onclick="printInv()">Print / Share</button>
+      <button class="bs" onclick="closeModal()">Close</button>
+    </div>
+  `);
+}
+
+function printInv() {
+  const content = document.querySelector(".inv-preview").outerHTML;
+  const w = window.open('','','width=600,height=800');
+  w.document.write(`<html><head><title>Invoice</title><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;padding:20px;color:#222}.inv-preview{padding:24px}.inv-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #2d7a3a}.inv-hdr h2{font-family:'Fredoka',sans-serif;font-size:22px;color:#2d7a3a}.num{font-size:12px;color:#999;font-weight:600}.inv-info{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px}.label{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}.inv-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px}.inv-row.total{border-top:2px solid #2d7a3a;border-bottom:none;font-weight:700;font-size:16px;color:#2d7a3a;padding-top:12px;margin-top:4px}</style></head><body>${content}</body></html>`);
+  w.document.close();
+  setTimeout(()=>{w.print();},500);
+}
+
+function delInv(id){if(!confirm("Delete invoice?"))return;D.invoices=D.invoices.filter(x=>x.id!==id);save();toast("🗑️ Deleted");renderInv();}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+renderDash();
+</script>
+</body>
+</html>
